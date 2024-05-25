@@ -6,16 +6,39 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"] // fullTextSearch is a preview feature. It enables full-text search on the fields marked with db.Text. fullTextIndex enables full-text indexing on the fields marked with db.Text. So that the search queries are faster.
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+  // relationMode = "prisma" // This is the default mode. It is used to define the relations between the models.
 }
 
 model Category {
-  id          String    @id @default(uuid())
-  name        String
+  id             String    @id @default(uuid())
+  name           String
+  companions     Companion[]
+}
+
+model Companion {
+  id             String    @id @default(uuid())
+  userId         String
+  userName       String
+  source         String
+  name           String @db.Text // db.Text is used to store long text. Additionally, it makes it searchable. We will search for companions by name.
+  description    String
+  instructions   String @db.Text // instructions can be long.
+  seed           String @db.Text
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  category       Category @relation(fields: [categoryId], references: [id]) // A companion belongs to a category. A category has many companions. This relation is one-to-many.
+  categoryId     String
+
+  @@index([categoryId]) // This is an index on the categoryId field. It helps to speed up queries that filter by categoryId.
+  @@fulltext([name]) // This is a full-text index on the name fields. It helps to speed up full-text search queries on these fields.
 }
 
 
