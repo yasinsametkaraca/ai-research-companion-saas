@@ -20,6 +20,9 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Textarea} from "@/components/ui/textarea";
 import {Button} from "@/components/ui/button";
 import {WandSparkles} from "lucide-react";
+import axios from "axios";
+import {useToast} from "@/components/ui/use-toast";
+import {useRouter} from "next/navigation";
 
 interface CompanionFormProps {
     initialData: Companion | null;
@@ -97,10 +100,31 @@ const CompanionForm = ({initialData, categories}: CompanionFormProps) => {
             categoryId: ""
         } // companion form is a form that allows the user to create or edit a companion.
     });
-
     const isLoading = form.formState.isSubmitting;
+    const { toast } = useToast();
+    const router = useRouter();
+
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        console.log(values);
+        try {
+            if (initialData) {
+                // Update the companion
+                await axios.patch(`/api/companion/${initialData.id}/`, values)
+            } else {
+                // Create a new companion
+                await axios.post("/api/companion/", values)
+            }
+            toast({
+                description: "Your companion has been saved successfully.",
+            });
+            router.refresh(); // Refresh the page to reflect the changes. Refresh all server components and data fetching methods.
+            router.push("/");
+        } catch (error) {
+            console.error(error);
+            toast({
+                variant: "destructive",
+                description: "Something went wrong. Please try again later.",
+            });
+        }
     }
 
     return (

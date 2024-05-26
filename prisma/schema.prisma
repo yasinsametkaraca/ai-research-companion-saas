@@ -22,7 +22,7 @@ model Category {
 }
 
 model Companion {
-  id             String    @id @default(uuid())
+  id             String @id @default(uuid())
   userId         String
   userName       String
   source         String
@@ -37,8 +37,30 @@ model Companion {
   category       Category @relation(fields: [categoryId], references: [id]) // A companion belongs to a category. A category has many companions. This relation is one-to-many.
   categoryId     String
 
+  messages       Message[] // A companion has many messages. A message belongs to a companion. This relation is one-to-many.
+
   @@index([categoryId]) // This is an index on the categoryId field. It helps to speed up queries that filter by categoryId.
   @@fulltext([name]) // This is a full-text index on the name fields. It helps to speed up full-text search queries on these fields.
+}
+
+enum Role {
+  user
+  system
+}
+
+model Message {
+  id             String @id @default(uuid())
+  content        String @db.Text
+  role           Role
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  companionId    String
+  userId         String
+
+  companion      Companion @relation(fields: [companionId], references: [id], onDelete: Cascade)
+
+  @@index([companionId])
 }
 
 
