@@ -55,8 +55,8 @@ model Message {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  companionId    String
-  userId         String
+  companionId    String // ai response
+  userId         String // user response
 
   companion      Companion @relation(fields: [companionId], references: [id], onDelete: Cascade)
 
