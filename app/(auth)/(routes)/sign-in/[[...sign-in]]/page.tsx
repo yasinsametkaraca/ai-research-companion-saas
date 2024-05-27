@@ -10,4 +10,4 @@ export default function Page() {
 //site.com/sign-in
 //site.com/sign-in/step1
 //site.com/sign-in/step1/details
-//site.com/sign-in/any/number/of/nested/routes
+//site.com/sign-in/any/number/of/nested/(routes)

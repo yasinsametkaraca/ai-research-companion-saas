@@ -1,4 +1,4 @@
-import {currentUser} from "@clerk/nextjs/server";
+import {auth, currentUser} from "@clerk/nextjs/server";
 import {NextResponse} from "next/server";
 import prismadb from "@/lib/prismadb";
 
@@ -40,6 +40,34 @@ export async function PATCH(req: Request, {params}: {params: {companionId: strin
         return NextResponse.json(companion, {status: 200})
 
     } catch (error) {
+        return new NextResponse("Internal Server Error", {status: 500});
+    }
+}
+
+// This is an example of a DELETE request handler. For delete a companion. Endpoint: /api/companion/[companionId]
+
+export async function DELETE(req: Request, {params}: {params: {companionId: string}}) {
+    try {
+        const { userId } = auth();
+
+        if (!params.companionId) {
+            return new NextResponse("Companion ID is required.", {status: 400});
+        }
+
+        if (!userId) {
+            return new NextResponse("Unauthorized", {status: 401});
+        }
+
+        const companion = await prismadb.companion.delete({
+            where: {
+                userId,
+                id: params.companionId
+            }
+        }); // if user is not the owner of the companion, it will throw an error.
+
+        return NextResponse.json(companion)
+    } catch (error) {
+        console.log(error);
         return new NextResponse("Internal Server Error", {status: 500});
     }
 }
