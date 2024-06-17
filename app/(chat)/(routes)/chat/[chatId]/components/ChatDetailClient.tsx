@@ -27,7 +27,8 @@ const ChatDetailClient = ({companion}: ChatDetailClientProps) => {
         isLoading,
         handleInputChange,
         handleSubmit,
-        setInput
+        setInput,
+        error,
     } = useCompletion({
         api: `/api/chat/${companion.id}/`, // The API endpoint to call for completions
         onFinish(prompt, completion) { // onFinish is a callback that is called when the user selects a completion
@@ -59,6 +60,7 @@ const ChatDetailClient = ({companion}: ChatDetailClientProps) => {
                 isLoading={isLoading}
                 messages={messages}
             />
+            {error && <div className="error">Error: {error.message}</div>}
             <ChatForm
                 input={input}
                 isLoading={isLoading}
