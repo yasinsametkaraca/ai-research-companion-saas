@@ -27,7 +27,6 @@ export async function POST(request: Request, { params }: { params: { chatId: str
         const companion = await prismadb.companion.update({ // Update the companion with the user message.
             where: {
                 id: params.chatId,
-                userId: user.id
             },
             data: {
                 messages: {
@@ -67,6 +66,8 @@ export async function POST(request: Request, { params }: { params: { chatId: str
         // Query Pinecone
         const similarDocs = await memoryManager.vectorSearch(recentChatHistory, companion_file_name); // Search for similar documents in Pinecone. Pinecone is a vector database that stores chat history as vectors. We are going to search for similar documents in the vector database based on the recent chat history.
         console.log("Similar Docs", similarDocs);
+        // We just fetched from a vector database.
+
         let relevantHistory = ""; // relevant history is the chat history of the companion that is relevant to the current conversation.
 
         if (!!similarDocs && similarDocs.length !== 0) { // if there are similar documents found in Pinecone, we are going to fetch the chat history of the companion that is relevant to the current conversation.
@@ -85,9 +86,10 @@ export async function POST(request: Request, { params }: { params: { chatId: str
             callbackManager: CallbackManager.fromHandlers(handlers),
         });
 
-        // Turn verbose on for debugging
+        // Turn verbose on for debugging. useful logs.
         model.verbose = true;
 
+        // Call the Replicate API for inference with the user message and the relevant chat history. The model will generate a response based on the user message and the relevant chat history.
         const response = await model
             .call(`
                   ONLY generate plain sentences without prefix of who is speaking. DO NOT use ${companion.name}: prefix. 
@@ -97,23 +99,24 @@ export async function POST(request: Request, { params }: { params: { chatId: str
                   Below are relevant details about ${companion.name}'s past and the conversation you are in.
                   ${relevantHistory}
 
-
                   ${recentChatHistory}\n${companion.name}:`
             )
             .catch(console.error);
 
-        const cleaned = response?.replaceAll(",", "");
-        const chunks = cleaned?.split("\n");
-        const responseBody = chunks?.[0];
-        await memoryManager.writeToHistory("" + responseBody?.trim(), companionKey);
-        var Readable = require('stream').Readable;
+        // const cleaned = response?.replaceAll(",", ""); // Clean the response by removing commas.
+        // const chunks = cleaned?.split("\n"); // Split the response into chunks based on newline characters.
+        // const responseBody = chunks?.[1];
 
-        let s = new Readable();
-        s.push(responseBody);
-        s.push(null)
+        await memoryManager.writeToHistory("" + response?.trim(), companionKey); // Write the response to the chat history in Redis. The response is stored as a chat message with the role "system".
 
-        if (responseBody && responseBody.length > 1) {
-            await memoryManager.writeToHistory(`${responseBody.trim()}`, companionKey);
+        let Readable = require("stream").Readable; // Create a readable stream from the response body. A readable stream is used to stream text responses from the AI model.
+        let stream = new Readable(); // Create a new readable stream. A readable stream is used to stream text responses from the AI model.
+        stream.push(response);
+        stream.push(null)
+        console.log("stream", stream);
+
+        if (response && response.length > 1) {
+            await memoryManager.writeToHistory("" + response?.trim(), companionKey);
 
             await prismadb.companion.update({
                 where: {
@@ -122,7 +125,7 @@ export async function POST(request: Request, { params }: { params: { chatId: str
                 data: {
                     messages: {
                         create: {
-                            content: responseBody.trim(),
+                            content: response.trim(),
                             role: 'system',
                             userId: user.id
                         }
@@ -131,7 +134,7 @@ export async function POST(request: Request, { params }: { params: { chatId: str
             });
         }
 
-        return new StreamingTextResponse(s);
+        return new StreamingTextResponse(stream);
     } catch (error) {
         console.log("[CHAT_ERROR]", error);
         return new NextResponse("Internal Server", { status: 500 });
