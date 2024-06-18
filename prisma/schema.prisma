@@ -63,6 +63,17 @@ model Message {
   @@index([companionId])
 }
 
+model UserSubscription {
+  id                        String @id @default(uuid())
+  userId                    String @unique
+  stripeCustomerId          String? @unique @map(name: "stripe_customer_id") // stripeCustomerId is a unique field. It is mapped to the stripe_customer_id column in the database. stripeCustomerId is how gonna access it using Prisma Client. stripe_customer_id is how it is stored in the database.
+  stripeSubscriptionId      String? @unique @map(name: "stripe_subscription_id")
+  stripePriceId             String? @unique @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd    DateTime? @map(name: "stripe_current_period_end")
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+
 
 // npx prisma generate
 // npx prisma db push
