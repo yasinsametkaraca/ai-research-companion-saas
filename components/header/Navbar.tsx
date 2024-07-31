@@ -22,7 +22,7 @@ const Navbar = ({isPremium}: {isPremium: boolean}) => {
     return (
         <div className="flex justify-between items-center py-2 px-4 border-b border-primary/10 bg-secondary bg w-full fixed z-50">
             <div className="flex items-center h-12">
-                <MobileSidebar />
+                <MobileSidebar isPremium={isPremium} />
                 <Link href="/">
                     <h1 className={cn("hidden md:block text-xl md:text-2xl font-bold text-primary", font.className)}>ysk.ai</h1>
                 </Link>

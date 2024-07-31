@@ -7,14 +7,14 @@ import {
 import {Menu} from "lucide-react";
 import Sidebar from "@/components/sidebar/Sidebar";
 
-const MobileSidebar = () => {
+const MobileSidebar = ({isPremium}: {isPremium: boolean}) => {
     return (
         <Sheet>
             <SheetTrigger className="md:hidden pr-4">
                 <Menu />
             </SheetTrigger>
             <SheetContent side="left" className="p-0 bg-secondary pt-12 w-28">
-                <Sidebar />
+                <Sidebar isPremium={isPremium} />
             </SheetContent>
         </Sheet>
     );
