@@ -1,6 +1,7 @@
 import {NextResponse} from "next/server";
 import {currentUser} from "@clerk/nextjs/server";
 import prismadb from "@/lib/prismadb";
+import {checkSubscription} from "@/lib/subscription";
 
 // This is an example of a POST request handler. For create a new companion. Endpoint: /api/companion/
 export async function POST(req: Request) {
@@ -15,6 +16,11 @@ export async function POST(req: Request) {
 
         if (!name || !description || !instructions || !seed || !categoryId || !source) {
             return new NextResponse("Missing require fields.", {status: 400});
+        }
+
+        const isPremium = await checkSubscription(); // Check if the user is premium.
+        if (!isPremium) {
+            return new NextResponse("Premium subscription required.", {status: 403});
         }
 
         // Create a new companion in the database.

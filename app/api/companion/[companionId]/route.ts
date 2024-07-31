@@ -1,6 +1,7 @@
 import {auth, currentUser} from "@clerk/nextjs/server";
 import {NextResponse} from "next/server";
 import prismadb from "@/lib/prismadb";
+import {checkSubscription} from "@/lib/subscription";
 
 // This is an example of a PATCH request handler. For update a companion. Endpoint: /api/companion/[companionId]
 export async function PATCH(req: Request, {params}: {params: {companionId: string}}) {
@@ -19,6 +20,11 @@ export async function PATCH(req: Request, {params}: {params: {companionId: strin
 
         if (!name || !description || !instructions || !seed || !categoryId || !source) {
             return new NextResponse("Missing require fields.", {status: 400});
+        }
+
+        const isPremium = await checkSubscription(); // Check if the user is premium.
+        if (!isPremium) {
+            return new NextResponse("Premium subscription required.", {status: 403});
         }
 
         // Update the companion in the database.

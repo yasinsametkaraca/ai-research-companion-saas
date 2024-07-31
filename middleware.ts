@@ -4,7 +4,8 @@ const unprotectedRoutes = createRouteMatcher([
     '/sign-in', // Ensure all sub-(routes) under sign-in are also unprotected
     '/sign-in/(.*)',
     '/sign-up', // Ensure all sub-(routes) under sign-up are also unprotected
-    '/sign-up/(.*)'
+    '/sign-up/(.*)',
+    '/api/webhook',
 ]);
 
 export default clerkMiddleware((auth, req) => {

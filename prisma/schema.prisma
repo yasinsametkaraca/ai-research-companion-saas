@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch", "fullTextIndex"] // fullTextSearch is a preview feature. It enables full-text search on the fields marked with db.Text. fullTextIndex enables full-text indexing on the fields marked with db.Text. So that the search queries are faster.
 }
 
@@ -16,28 +16,28 @@ datasource db {
 }
 
 model Category {
-  id             String    @id @default(uuid())
-  name           String
-  companions     Companion[]
+  id         String      @id @default(uuid())
+  name       String
+  companions Companion[]
 }
 
 model Companion {
-  id             String @id @default(uuid())
-  userId         String
-  userName       String
-  source         String
-  name           String @db.Text // db.Text is used to store long text. Additionally, it makes it searchable. We will search for companions by name.
-  description    String
-  instructions   String @db.Text // instructions can be long.
-  seed           String @db.Text
+  id           String @id @default(uuid())
+  userId       String
+  userName     String
+  source       String
+  name         String @db.Text // db.Text is used to store long text. Additionally, it makes it searchable. We will search for companions by name.
+  description  String
+  instructions String @db.Text // instructions can be long.
+  seed         String @db.Text
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  category       Category @relation(fields: [categoryId], references: [id]) // A companion belongs to a category. A category has many companions. This relation is one-to-many.
-  categoryId     String
+  category   Category @relation(fields: [categoryId], references: [id]) // A companion belongs to a category. A category has many companions. This relation is one-to-many.
+  categoryId String
 
-  messages       Message[] // A companion has many messages. A message belongs to a companion. This relation is one-to-many.
+  messages Message[] // A companion has many messages. A message belongs to a companion. This relation is one-to-many.
 
   @@index([categoryId]) // This is an index on the categoryId field. It helps to speed up queries that filter by categoryId.
   @@fulltext([name]) // This is a full-text index on the name fields. It helps to speed up full-text search queries on these fields.
@@ -49,32 +49,32 @@ enum Role {
 }
 
 model Message {
-  id             String @id @default(uuid())
-  content        String @db.Text
-  role           Role
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  companionId    String // ai response
-  userId         String // user response
+  companionId String // ai response
+  userId      String // user response
 
-  companion      Companion @relation(fields: [companionId], references: [id], onDelete: Cascade)
+  companion Companion @relation(fields: [companionId], references: [id], onDelete: Cascade)
 
   @@index([companionId])
 }
 
 model UserSubscription {
-  id                        String @id @default(uuid())
-  userId                    String @unique
-  stripeCustomerId          String? @unique @map(name: "stripe_customer_id") // stripeCustomerId is a unique field. It is mapped to the stripe_customer_id column in the database. stripeCustomerId is how gonna access it using Prisma Client. stripe_customer_id is how it is stored in the database.
-  stripeSubscriptionId      String? @unique @map(name: "stripe_subscription_id")
-  stripePriceId             String? @unique @map(name: "stripe_price_id")
-  stripeCurrentPeriodEnd    DateTime? @map(name: "stripe_current_period_end")
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
+  id                     String    @id @default(uuid())
+  userId                 String    @unique
+  stripeCustomerId       String?   @unique @map(name: "stripe_customer_id") // stripeCustomerId is a unique field. It is mapped to the stripe_customer_id column in the database. stripeCustomerId is how gonna access it using Prisma Client. stripe_customer_id is how it is stored in the database.
+  stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?   @unique @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 }
-
 
 // npx prisma generate
 // npx prisma db push
 
+// npx prisma studio

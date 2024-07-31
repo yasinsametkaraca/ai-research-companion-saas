@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import {ThemeProvider} from "@/components/provider/ThemeProvider";
 import {cn} from "@/lib/utils";
 import {Toaster} from "@/components/ui/toaster";
+import ProModal from "@/components/general/ProModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +29,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
+            <ProModal />
             {children}
             <Toaster />
         </ThemeProvider>

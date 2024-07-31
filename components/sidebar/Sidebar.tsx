@@ -4,10 +4,12 @@ import React from 'react';
 import {Home, Plus, Settings} from "lucide-react";
 import {cn} from "@/lib/utils";
 import {usePathname, useRouter} from "next/navigation"; // cn is a utility function that combines classnames with a space separator. It is used to conditionally apply classes to elements.
+import { useProModal } from '@/hooks/useProModal';
 
-const Sidebar = () => {
+const Sidebar = ({isPremium}: {isPremium: boolean}) => {
     const pathname = usePathname();
     const router = useRouter();
+    const proModal = useProModal();
     const routes = [
         {
             label: "Home",
@@ -30,6 +32,10 @@ const Sidebar = () => {
     ];
 
     const onNavigate = (url:string, premium: boolean) => {
+        if (premium && !isPremium) {
+            return proModal.onOpen(); // if the user is not premium, open the pro modal. 
+        }
+
         return routes.find((route) => route.href === url && route.premium === premium) ? router.push(url) : null;
     }
 

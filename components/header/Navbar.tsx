@@ -9,13 +9,16 @@ import {SignedIn, UserButton} from "@clerk/nextjs";
 import {Button} from "@/components/ui/button";
 import {ModeToggle} from "@/components/general/ModeToggle";
 import MobileSidebar from "@/components/sidebar/MobileSidebar";
+import {useProModal} from "@/hooks/useProModal";
 
 const font = Inter({
     weight: "800",
     subsets: ["latin"],
 });
 
-const Navbar = () => {
+const Navbar = ({isPremium}: {isPremium: boolean}) => {
+    const proModal = useProModal();
+
     return (
         <div className="flex justify-between items-center py-2 px-4 border-b border-primary/10 bg-secondary bg w-full fixed z-50">
             <div className="flex items-center h-12">
@@ -25,10 +28,13 @@ const Navbar = () => {
                 </Link>
             </div>
             <div className="flex items-center gap-x-3">
-                <Button variant="upgrade" size="sm">
-                    Upgrade
-                    <Sparkles className="ml-2 fill-white text-white h-4 w-4"/>
-                </Button>
+                {!isPremium && (
+                        <Button onClick={proModal.onOpen} variant="upgrade" size="sm">
+                            Upgrade
+                            <Sparkles className="ml-2 fill-white text-white h-4 w-4"/>
+                        </Button>
+                    )
+                }
                 <ModeToggle />
                 <SignedIn>
                     <UserButton afterSignOutUrl="/"/>
